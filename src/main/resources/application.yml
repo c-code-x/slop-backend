@@ -1,0 +1,31 @@
+server:
+  error:
+    include-message: always
+  port: 8080
+  servlet:
+    context-path: /api
+spring:
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
+  datasource:
+    url: jdbc:postgresql://localhost:5432/slop
+    username: postgres
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+logging:
+  level:
+    org:
+      hibernate:
+        nodeValue: INFO
+        SQL: INFO
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
