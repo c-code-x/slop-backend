@@ -31,6 +31,9 @@ public class UserEntity {
     @Column(nullable = false,unique = true)
     private String registrationId;
 
+    @Column(nullable = false)
+    private String bio="I love dogs.";
+
     @Column(nullable = false,unique = true)
     private String emailId;
 
@@ -40,7 +43,6 @@ public class UserEntity {
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private UserRole userRole= UserRole.USER;
-
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
@@ -49,7 +51,6 @@ public class UserEntity {
         UserEntity that = (UserEntity) object;
         return id != null && Objects.equals(id, that.id);
     }
-
     @Override
     public int hashCode() {
         return getClass().hashCode();

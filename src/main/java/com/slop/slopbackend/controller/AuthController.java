@@ -34,7 +34,7 @@ public class AuthController {
         this.securityConfiguration = securityConfiguration;
         this.jwtUtil = jwtUtil;
     }
-    @PostMapping("/signin")
+    @PostMapping("signin")
     public String signIn(@RequestBody @Valid UserSigninReqDTO userSigninReqDTO){
         try {
             securityConfiguration.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userSigninReqDTO.getEmailId(),userSigninReqDTO.getPassword()));
@@ -46,7 +46,7 @@ public class AuthController {
         return jwtUtil.generateToken(userDetailsService.loadUserByUsername(userEntity.getEmailId()));
     }
 
-    @PostMapping("/signup")
+    @PostMapping("signup")
     public UserResDTO signup(@RequestBody @Valid UserSignupReqDTO userSignupReqDTO){
         UserEntity userEntity= ModelMapperUtil.toUserEntity(userSignupReqDTO);
         return ModelMapperUtil.toUserResDTO(userService.saveUser(userEntity));
