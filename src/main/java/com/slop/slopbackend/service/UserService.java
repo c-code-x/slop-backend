@@ -1,10 +1,13 @@
 package com.slop.slopbackend.service;
 
 
+import com.slop.slopbackend.dto.request.user.UpdateEmailIdReqDTO;
+import com.slop.slopbackend.dto.request.user.UpdatePasswordReqDTO;
 import com.slop.slopbackend.dto.request.user.UpdateUserReqDTO;
 import com.slop.slopbackend.entity.UserEntity;
 import com.slop.slopbackend.exception.ApiRuntimeException;
 import com.slop.slopbackend.repository.UserRepository;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -53,6 +56,29 @@ public class UserService {
         userEntity.setBio(updateUserReqDTO.getBio());
         userEntity.setRegistrationId(updateUserReqDTO.getRegistrationId());
 
+        return userRepository.save(userEntity);
+    }
+
+    public UserEntity updateEmailIdById(UpdateEmailIdReqDTO updateEmailIdReqDTO, UUID id) {
+        Optional<UserEntity> optionalUserEntity=userRepository.findById(id);
+        if(optionalUserEntity.isEmpty())
+            throw new ApiRuntimeException("User does not exist",HttpStatus.NOT_FOUND);
+        if(userRepository.existsByEmailId(updateEmailIdReqDTO.getEmailId()))
+            throw new ApiRuntimeException("Email is already taken.",HttpStatus.ALREADY_REPORTED);
+
+        UserEntity userEntity=optionalUserEntity.get();
+        userEntity.setEmailId(updateEmailIdReqDTO.getEmailId());
+        return userRepository.save(userEntity);
+    }
+
+    public UserEntity updatePasswordById(UpdatePasswordReqDTO updatePasswordReqDTO, UUID id) {
+
+        Optional<UserEntity> optionalUserEntity=userRepository.findById(id);
+        if(optionalUserEntity.isEmpty())
+            throw new ApiRuntimeException("user does not exist", HttpStatus.NOT_FOUND);
+
+        UserEntity userEntity=optionalUserEntity.get();
+        userEntity.setPassword(passwordEncoder.encode(updatePasswordReqDTO.getPassword()));
         return userRepository.save(userEntity);
     }
 }
