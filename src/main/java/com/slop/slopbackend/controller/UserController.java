@@ -8,6 +8,7 @@ import com.slop.slopbackend.entity.UserEntity;
 import com.slop.slopbackend.service.UserService;
 import com.slop.slopbackend.utility.ModelMapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -25,6 +26,12 @@ public class UserController {
         this.userService = userService;
     }
 // TODO: check if user is authorized to update his document
+    @GetMapping("getuser")
+    public UserResDTO getUserDetails(Authentication authentication){
+        UserEntity userEntity=userService.getUserByEmailId(authentication.getName());
+        return ModelMapperUtil.toUserResDTO(userEntity);
+    }
+
     @PatchMapping("{id}")
     public Object updateUser(@RequestBody @Valid UpdateUserReqDTO updateUserReqDTO, @PathVariable UUID id){
         UserEntity userEntity=userService.updateUserById(updateUserReqDTO,id);
