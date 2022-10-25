@@ -16,5 +16,7 @@ public class UserResDTO {
 
     private String emailId;
 
+    private String bio;
+
     private UserRole userRole;
 }

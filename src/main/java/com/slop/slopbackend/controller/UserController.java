@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.UUID;
 
-@RestController()
+@RestController
 @RequestMapping("users")
 @CrossOrigin("*")
 public class UserController {
@@ -26,7 +26,7 @@ public class UserController {
         this.userService = userService;
     }
 // TODO: check if user is authorized to update his document
-    @GetMapping("getuser")
+    @GetMapping("getUser")
     public UserResDTO getUserDetails(Authentication authentication){
         UserEntity userEntity=userService.getUserByEmailId(authentication.getName());
         return ModelMapperUtil.toUserResDTO(userEntity);
