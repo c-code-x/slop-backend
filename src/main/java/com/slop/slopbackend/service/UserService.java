@@ -7,7 +7,6 @@ import com.slop.slopbackend.dto.request.user.UpdateUserReqDTO;
 import com.slop.slopbackend.entity.UserEntity;
 import com.slop.slopbackend.exception.ApiRuntimeException;
 import com.slop.slopbackend.repository.UserRepository;
-import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -48,13 +47,10 @@ public class UserService {
         Optional<UserEntity> optionalUserEntity=userRepository.findById(id);
         if(optionalUserEntity.isEmpty())
             throw new ApiRuntimeException("User does not exist",HttpStatus.NOT_FOUND);
-        if(userRepository.existsByRegistrationId(updateUserReqDTO.getRegistrationId()))
-            throw new ApiRuntimeException("User registration id is already taken!",HttpStatus.ALREADY_REPORTED);
 
         UserEntity userEntity=optionalUserEntity.get();
         userEntity.setFullName(updateUserReqDTO.getFullName());
         userEntity.setBio(updateUserReqDTO.getBio());
-        userEntity.setRegistrationId(updateUserReqDTO.getRegistrationId());
 
         return userRepository.save(userEntity);
     }
