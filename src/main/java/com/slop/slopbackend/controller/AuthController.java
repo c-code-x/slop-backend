@@ -20,7 +20,6 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("auth")
-@CrossOrigin("*")
 public class AuthController {
     private final UserDetailsServiceImpl userDetailsService;
     private final UserService userService;
