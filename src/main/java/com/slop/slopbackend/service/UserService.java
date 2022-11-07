@@ -41,6 +41,8 @@ public class UserService {
             throw new ApiRuntimeException("EmailId is already taken!",HttpStatus.ALREADY_REPORTED);
         if(userRepository.existsByRegistrationId(userEntity.getRegistrationId()))
             throw new ApiRuntimeException("Registration id is already taken!",HttpStatus.ALREADY_REPORTED);
+        if(userRepository.existsByPhoneNumber(userEntity.getPhoneNumber()))
+            throw new ApiRuntimeException("Phone number is already taken!",HttpStatus.ALREADY_REPORTED);
         return userRepository.save(userEntity);
     }
     public UserEntity updateUserById(UpdateUserReqDTO updateUserReqDTO, UUID id) {

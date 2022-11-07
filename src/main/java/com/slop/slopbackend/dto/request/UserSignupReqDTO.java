@@ -21,6 +21,10 @@ public class UserSignupReqDTO {
     String emailId;
 
     @NotEmpty
+    @Size(min=10,max=10)
+    String phoneNumber;
+
+    @NotEmpty
     @Size(min=5,max=32)
     String password;
 }
