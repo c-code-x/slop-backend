@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+
+  # DB
+  slop-db:
+    image: postgres:14-alpine
+    container_name: slop-db
+    # networks:
+    #   - shared-network
+    volumes:
+      - slop-db-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=slop
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+
+  # server
+  slop-server:
+    build: ./
+    container_name: slop-server
+    # networks:
+    #   - shared-network
+
+    #Environment variables for Spring Boot Application.
+    environment:
+      - DB_SERVER=slop-db
+      - POSTGRES_DB=slop
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    ports:
+      - 8080:8080
+    depends_on:
+      - slop-db
+
+volumes:
+  slop-db-data:
+
+# networks:
+#   shared-network: {}
