@@ -21,11 +21,12 @@ public class SecurityConfiguration {
     public AuthenticationManager authenticationManager;
     final private UserDetailsServiceImpl userDetailsService;
     final private JwtRequestFilter jwtRequestFilter;
-    final private String[] PUBLIC_URLS ={
+    final private String[] PUBLIC_URLS = {
             "/auth/**",
             "/swagger-ui/*",
             "/v2/api-docs/**",
             "/swagger-resources/**",
+            "/health"
     };
 
     @Autowired
@@ -42,7 +43,8 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
-        AuthenticationManagerBuilder authenticationManagerBuilder = httpSecurity.getSharedObject(AuthenticationManagerBuilder.class);
+        AuthenticationManagerBuilder authenticationManagerBuilder = httpSecurity
+                .getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder.userDetailsService(userDetailsService);
         authenticationManager = authenticationManagerBuilder.build();
 
@@ -61,6 +63,7 @@ public class SecurityConfiguration {
 
         return httpSecurity.build();
     }
+
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -68,7 +71,7 @@ public class SecurityConfiguration {
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
         corsConfiguration.addAllowedOrigin("*");
-        source.registerCorsConfiguration("/**",corsConfiguration );
+        source.registerCorsConfiguration("/**", corsConfiguration);
         System.out.println(source.getCorsConfigurations());
         return source;
     }

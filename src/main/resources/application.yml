@@ -9,10 +9,12 @@ spring:
     pathmatch:
       matching-strategy: ANT_PATH_MATCHER
   datasource:
-    url: jdbc:postgresql://${DB_SERVER}:5432/${POSTGRES_DB}
-    username: ${POSTGRES_USER}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://${PGHOST_MAIN}/${PGDATABASE}
+    username: ${PGUSER}
+    password: ${PGPASSWORD}
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL94Dialect
+    open-in-view: false
     hibernate:
       ddl-auto: update
     properties:
