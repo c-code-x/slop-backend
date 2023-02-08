@@ -13,6 +13,8 @@ spring:
     username: ${PGUSER}
     password: ${PGPASSWORD}
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL94Dialect
+    open-in-view: false
     hibernate:
       ddl-auto: update
     properties:
