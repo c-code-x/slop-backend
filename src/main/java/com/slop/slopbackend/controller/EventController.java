@@ -4,9 +4,11 @@ import com.slop.slopbackend.dto.request.event.EventCreateReqDTO;
 import com.slop.slopbackend.dto.request.event.EventUpdateReqDTO;
 import com.slop.slopbackend.dto.response.event.EventCompleteResDTO;
 import com.slop.slopbackend.dto.response.event.EventResDTO;
+import com.slop.slopbackend.entity.EventCreatorEntity;
 import com.slop.slopbackend.entity.EventEntity;
 import com.slop.slopbackend.entity.UserEntity;
 import com.slop.slopbackend.exception.ApiRuntimeException;
+import com.slop.slopbackend.repository.EventCreatorRepository;
 import com.slop.slopbackend.service.EventService;
 import com.slop.slopbackend.service.UserService;
 import com.slop.slopbackend.utility.ModelMapperUtil;
@@ -20,8 +22,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Set;
 
 
 @RestController
@@ -30,10 +30,14 @@ import java.util.Set;
 public class EventController {
     private final EventService eventService;
     private final UserService userService;
+    private final EventCreatorRepository eventCreatorRepository;
+
     @Autowired
-    public EventController(EventService eventService, UserService userService) {
+    public EventController(EventService eventService, UserService userService,
+                           EventCreatorRepository eventCreatorRepository) {
         this.eventService = eventService;
         this.userService = userService;
+        this.eventCreatorRepository = eventCreatorRepository;
     }
     @PostMapping
     public EventResDTO createEvent(Authentication authentication, @RequestBody @Valid EventCreateReqDTO eventCreateReqDTO){
@@ -43,22 +47,25 @@ public class EventController {
             throw new ApiRuntimeException("User cant create an event!", HttpStatus.UNAUTHORIZED);
         }
         EventEntity eventEntity=ModelMapperUtil.toEventEntity(eventCreateReqDTO);
-        userEntity.addEvent(eventEntity);
-        eventEntity.addCreator(userEntity);
+        EventCreatorEntity eventCreatorEntity=new EventCreatorEntity();
+        eventCreatorEntity.setEvent(eventEntity);
+        eventCreatorEntity.setUser(userEntity);
+        eventCreatorRepository.save(eventCreatorEntity);
         return ModelMapperUtil.toEventResDTO(eventService.saveEvent(eventEntity));
     }
 
-    @GetMapping
-    public List<EventCompleteResDTO> getClubEvents(Authentication authentication){
-        UserEntity userEntity=userService.getUserByEmailId(authentication.getName());
-        if(!(userEntity.getUserRole()==UserRole.CLUB || userEntity.getUserRole()==UserRole.ADMIN)){
-            throw new ApiRuntimeException("User is not authorized to access events", HttpStatus.UNAUTHORIZED);
-        }
-        Set<EventEntity> eventEntities=userEntity.getCreatedEvents();
-        System.out.println(userEntity);
-        System.out.println("SIZE: "+userEntity.getCreatedEvents().size());
-        return eventEntities.stream().map(ModelMapperUtil::toEventCompleteResDTO).toList();
-    }
+
+//    @GetMapping
+//    public List<EventCompleteResDTO> getClubEvents(Authentication authentication){
+//        UserEntity userEntity=userService.getUserByEmailId(authentication.getName());
+//        if(!(userEntity.getUserRole()==UserRole.CLUB || userEntity.getUserRole()==UserRole.ADMIN)){
+//            throw new ApiRuntimeException("User is not authorized to access events", HttpStatus.UNAUTHORIZED);
+//        }
+//        Set<EventEntity> eventEntities=userEntity.getCreatedEvents();
+//        System.out.println(userEntity);
+//        System.out.println("SIZE: "+userEntity.getCreatedEvents().size());
+//        return eventEntities.stream().map(ModelMapperUtil::toEventCompleteResDTO).toList();
+//    }
     @GetMapping("{eventSlug}")
     public EventCompleteResDTO getEventBySlug(Authentication authentication,@PathVariable String eventSlug){
         UserEntity userEntity=userService.getUserByEmailId(authentication.getName());

@@ -16,7 +16,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQL94Dialect
     open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
