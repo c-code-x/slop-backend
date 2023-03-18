@@ -60,19 +60,14 @@ public class UserEntity {
     private UserSchool userSchool;
     @Column(nullable = false,updatable = false)
     private String secretKey;
-    @PrePersist
-    public void prePersist() {
-        generateSecretKey();
-    }
 
     @PreUpdate
+    @PrePersist
     public void preUpdate() {
-        if (secretKey.isBlank()) {
-            generateSecretKey();
+        if (secretKey==null || secretKey.isBlank()) {
+            this.secretKey= RandomKeyGenerator.generateRandomKey();
+            System.out.println("Secret key generated:"+secretKey);
         }
-    }
-    private void generateSecretKey(){
-        this.secretKey= RandomKeyGenerator.generateRandomKey();
     }
     @Override
     public boolean equals(Object object) {
