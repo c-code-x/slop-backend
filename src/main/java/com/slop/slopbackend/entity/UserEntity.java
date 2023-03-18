@@ -1,6 +1,7 @@
 package com.slop.slopbackend.entity;
 
 import com.slop.slopbackend.exception.ApiRuntimeException;
+import com.slop.slopbackend.utility.RandomKeyGenerator;
 import com.slop.slopbackend.utility.UserRole;
 import com.slop.slopbackend.utility.UserSchool;
 import com.slop.slopbackend.utility.UserSpecialization;
@@ -57,15 +58,22 @@ public class UserEntity {
 
     @Enumerated(value = EnumType.STRING)
     private UserSchool userSchool;
+    @Column(nullable = false,updatable = false)
+    private String secretKey;
+    @PrePersist
+    public void prePersist() {
+        generateSecretKey();
+    }
 
-    @ManyToMany(mappedBy = "registeredUsers")
-    @ToString.Exclude
-    private Set<EventEntity> registeredEvents;
-
-    @ManyToMany(mappedBy = "eventCreators")
-    @ToString.Exclude
-    private Set<EventEntity> createdEvents;
-
+    @PreUpdate
+    public void preUpdate() {
+        if (secretKey.isBlank()) {
+            generateSecretKey();
+        }
+    }
+    private void generateSecretKey(){
+        this.secretKey= RandomKeyGenerator.generateRandomKey();
+    }
     @Override
     public boolean equals(Object object) {
         if (this == object) return true;
@@ -77,14 +85,5 @@ public class UserEntity {
     @Override
     public int hashCode() {
         return getClass().hashCode();
-    }
-    public void addEvent(EventEntity eventEntity) {
-        if(!createdEvents.add(eventEntity))
-            throw new ApiRuntimeException("Event is already created", HttpStatus.ALREADY_REPORTED);
-    }
-
-    public void removeEvent(EventEntity eventEntity){
-        if(!createdEvents.remove(eventEntity))
-            throw new ApiRuntimeException("Event does not exist", HttpStatus.BAD_REQUEST);
     }
 }
