@@ -1,6 +1,5 @@
 package com.slop.slopbackend.entity;
 
-import com.slop.slopbackend.exception.ApiRuntimeException;
 import com.slop.slopbackend.utility.RandomKeyGenerator;
 import com.slop.slopbackend.utility.UserRole;
 import com.slop.slopbackend.utility.UserSchool;
@@ -8,11 +7,9 @@ import com.slop.slopbackend.utility.UserSpecialization;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.GenericGenerator;
-import org.springframework.http.HttpStatus;
 
 import javax.persistence.*;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
 
 @Entity

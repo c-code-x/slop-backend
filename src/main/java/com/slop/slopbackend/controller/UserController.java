@@ -45,7 +45,7 @@ public class UserController {
 
     @PatchMapping("{id}/password")
     public UserResDTO updateUserPassword(@RequestBody @Valid UpdatePasswordReqDTO updatePasswordReqDTO, @PathVariable UUID id){
-        UserEntity userEntity=userService.updatePasswordById(updatePasswordReqDTO,id);
+        UserEntity userEntity=userService.updatePasswordById(updatePasswordReqDTO.getPassword(),id);
         return ModelMapperUtil.toUserResDTO(userEntity);
     }
 }
