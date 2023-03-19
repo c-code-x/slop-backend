@@ -69,14 +69,14 @@ public class UserService {
         return userRepository.save(userEntity);
     }
 
-    public UserEntity updatePasswordById(UpdatePasswordReqDTO updatePasswordReqDTO, UUID id) {
+    public UserEntity updatePasswordById(String password, UUID id) {
 
         Optional<UserEntity> optionalUserEntity=userRepository.findById(id);
         if(optionalUserEntity.isEmpty())
             throw new ApiRuntimeException("user does not exist", HttpStatus.NOT_FOUND);
 
         UserEntity userEntity=optionalUserEntity.get();
-        userEntity.setPassword(passwordEncoder.encode(updatePasswordReqDTO.getPassword()));
+        userEntity.setPassword(passwordEncoder.encode(password));
         return userRepository.save(userEntity);
     }
 }
