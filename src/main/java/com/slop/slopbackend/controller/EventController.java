@@ -19,14 +19,12 @@ import org.springframework.security.core.Authentication;
 
 import org.springframework.web.bind.annotation.*;
 
-import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.sql.Timestamp;
 
 
 @RestController
 @RequestMapping("events")
-@Transactional
 public class EventController {
     private final EventService eventService;
     private final UserService userService;
