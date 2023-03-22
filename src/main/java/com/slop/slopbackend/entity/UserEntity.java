@@ -46,6 +46,8 @@ public class UserEntity {
     @Column(nullable = false)
     private String password;
 
+    private String profilePicture="";
+
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)
     private UserRole userRole= UserRole.USER;

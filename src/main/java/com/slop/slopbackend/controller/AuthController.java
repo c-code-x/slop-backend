@@ -4,6 +4,7 @@ import com.slop.slopbackend.dto.request.UserSigninReqDTO;
 import com.slop.slopbackend.dto.request.UserSignupReqDTO;
 import com.slop.slopbackend.dto.request.user.ChangePasswordReqDTO;
 import com.slop.slopbackend.dto.response.user.UserResDTO;
+import com.slop.slopbackend.dto.response.user.UserSignInResDTO;
 import com.slop.slopbackend.entity.UserEntity;
 import com.slop.slopbackend.exception.ApiRuntimeException;
 import com.slop.slopbackend.security.SecurityConfiguration;
@@ -41,7 +42,7 @@ public class AuthController {
         this.otpService = otpService;
     }
     @PostMapping("signin")
-    public String signIn(@RequestBody @Valid UserSigninReqDTO userSigninReqDTO){
+    public UserSignInResDTO signIn(@RequestBody @Valid UserSigninReqDTO userSigninReqDTO){
         try {
             securityConfiguration.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userSigninReqDTO.getEmailId(),userSigninReqDTO.getPassword()));
         }catch (BadCredentialsException e){
@@ -49,8 +50,12 @@ public class AuthController {
         }
         final UserEntity userEntity=userService.getUserByEmailId(userSigninReqDTO.getEmailId());
 
-        return jwtUtil.generateToken(userDetailsService.loadUserByUsername(userEntity.getEmailId()));
+        String jwt= jwtUtil.generateToken(userDetailsService.loadUserByUsername(userEntity.getEmailId()));
+        UserSignInResDTO userSignInResDTO= ModelMapperUtil.toObject(userEntity,UserSignInResDTO.class);
+        userSignInResDTO.setJwt(jwt);
+        return userSignInResDTO;
     }
+
 
     @PostMapping("signup")
     public UserResDTO signup(@RequestBody @Valid UserSignupReqDTO userSignupReqDTO){

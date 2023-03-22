@@ -4,6 +4,7 @@ package com.slop.slopbackend.utility;
 import com.slop.slopbackend.dto.response.event.EventCompleteResDTO;
 import com.slop.slopbackend.dto.response.event.EventResDTO;
 import com.slop.slopbackend.dto.response.user.UserResDTO;
+import com.slop.slopbackend.dto.response.user.UserSignInResDTO;
 import com.slop.slopbackend.entity.EventEntity;
 import com.slop.slopbackend.entity.UserEntity;
 import org.modelmapper.ModelMapper;
@@ -29,6 +30,10 @@ public class ModelMapperUtil {
 
     public static EventCompleteResDTO toEventCompleteResDTO(Object object) {
         return modelMapper.map(object,EventCompleteResDTO.class);
+    }
+
+    public static <T> T toObject(Object object, Class<T> className) {
+        return modelMapper.map(object, className);
     }
 }
 
