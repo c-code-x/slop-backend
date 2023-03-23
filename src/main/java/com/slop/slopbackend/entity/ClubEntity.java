@@ -7,6 +7,7 @@ import lombok.ToString;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -26,8 +27,8 @@ public class ClubEntity {
     private UUID id;
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true,nullable = false)
-    private UserEntity user;
+    @JoinColumn(name = "owner_id", referencedColumnName = "id", unique = true,nullable = false)
+    private UserEntity owner;
 
     @Column(nullable = false)
     private String clubName;
@@ -37,4 +38,10 @@ public class ClubEntity {
 
     @Column(nullable = false)
     private String clubDescription;
+
+    @OneToMany(mappedBy = "club")
+    private List<ClubFollowerEntity> clubFollowers;
+
+    @OneToMany(mappedBy = "creator")
+    private List<EventCreatorEntity> clubEvents;
 }

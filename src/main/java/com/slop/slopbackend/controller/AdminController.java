@@ -33,7 +33,7 @@ public class AdminController {
 
         ClubEntity clubEntity= clubService.saveClub(ModelMapperUtil.toObject(createClubReqDTO,ClubEntity.class),userEntity);
         ClubResDTO clubResDTO= ModelMapperUtil.toObject(clubEntity,ClubResDTO.class);
-        clubResDTO.setProfilePicture(clubEntity.getUser().getProfilePicture());
+        clubResDTO.setProfilePicture(clubEntity.getOwner().getProfilePicture());
         return clubResDTO;
     }
 }

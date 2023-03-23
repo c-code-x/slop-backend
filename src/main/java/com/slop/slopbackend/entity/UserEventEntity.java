@@ -29,11 +29,11 @@ public class UserEventEntity {
 
     @ManyToOne()
     @JoinColumn(name = "user_id",nullable = false,updatable = false)
-    private UserEntity userEntity;
+    private UserEntity user;
 
     @ManyToOne
     @JoinColumn(name="event_id",nullable = false,updatable = false)
-    private EventEntity eventEntity;
+    private EventEntity event;
 
     @Enumerated(value = EnumType.STRING)
     @Column(nullable = false)

@@ -20,4 +20,10 @@ public class EventResDTO {
     private Timestamp endTime;
     private String briefDescription;
     private Timestamp createdAt;
+    private long numberOfLikes;
+    private long numberOfRegistrations;
+    private long numberOfShares;
+    private long numberOfAttendees;
+    private boolean isLiked;
+    private boolean isRegistered;
 }

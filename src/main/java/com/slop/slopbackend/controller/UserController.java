@@ -3,9 +3,12 @@ package com.slop.slopbackend.controller;
 import com.slop.slopbackend.dto.request.user.UpdateEmailIdReqDTO;
 import com.slop.slopbackend.dto.request.user.UpdatePasswordReqDTO;
 import com.slop.slopbackend.dto.request.user.UpdateUserReqDTO;
+import com.slop.slopbackend.dto.response.user.UserFeedResDTO;
 import com.slop.slopbackend.dto.response.user.UserResDTO;
+import com.slop.slopbackend.entity.ClubEntity;
 import com.slop.slopbackend.entity.UserEntity;
 import com.slop.slopbackend.exception.ApiRuntimeException;
+import com.slop.slopbackend.service.ClubService;
 import com.slop.slopbackend.service.UserService;
 import com.slop.slopbackend.utility.ModelMapperUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +30,12 @@ import java.util.UUID;
 @RequestMapping("users")
 public class UserController {
     private final UserService userService;
-
+    private final ClubService clubService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, ClubService clubService) {
         this.userService = userService;
+        this.clubService = clubService;
     }
 // TODO: check if user is authorized to update his document
     @GetMapping("getUser")
@@ -71,5 +75,32 @@ public class UserController {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_JPEG);
         return new ResponseEntity<>(imageData, headers, HttpStatus.OK);
+    }
+    @PostMapping("/{userId}/follow-club/{clubId}")
+    public void followClub(@PathVariable UUID clubId, @PathVariable UUID userId,Authentication authentication){
+        UserEntity userEntity=userService.getUserByEmailId(authentication.getName());
+        if(!userEntity.getId().equals(userId))
+            throw new ApiRuntimeException("Unauthorized",HttpStatus.UNAUTHORIZED);
+        ClubEntity clubEntity=clubService.findClubById(clubId);
+        if(userEntity.getId()==clubEntity.getOwner().getId())
+            throw new ApiRuntimeException("You cant follow yourself",HttpStatus.BAD_REQUEST);
+        userService.followClub(userEntity,clubEntity);
+    }
+    @DeleteMapping("/{userId}/unfollow-club/{clubId}")
+    public void unfollowClub(@PathVariable UUID clubId, @PathVariable UUID userId,Authentication authentication){
+        UserEntity userEntity=userService.getUserByEmailId(authentication.getName());
+        if(!userEntity.getId().equals(userId))
+            throw new ApiRuntimeException("Unauthorized",HttpStatus.UNAUTHORIZED);
+        ClubEntity clubEntity=clubService.findClubById(clubId);
+        if(userEntity.getId()==clubEntity.getOwner().getId())
+            throw new ApiRuntimeException("You cant unfollow yourself",HttpStatus.BAD_REQUEST);
+        userService.unfollowClub(userEntity,clubEntity);
+    }
+    @GetMapping("/{userId}/feed")
+    public UserFeedResDTO getUserFeed(@PathVariable UUID userId,Authentication authentication){
+        UserEntity userEntity=userService.getUserByEmailId(authentication.getName());
+        if(!userEntity.getId().equals(userId))
+            throw new ApiRuntimeException("Unauthorized",HttpStatus.UNAUTHORIZED);
+        return userService.getUserFeed(userEntity);
     }
 }

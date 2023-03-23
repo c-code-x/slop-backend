@@ -53,14 +53,14 @@ public class ApiExceptionHandler {
                 .build();
         return new ResponseEntity<>(response, response.getHttpStatus());
     }
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ExceptionResDTO> globalExceptionHandler(Exception exception, WebRequest request){
-        ExceptionResDTO response= ExceptionResDTO.builder()
-                .message(exception.getMessage())
-                .path(request.getDescription(false))
-                .timestamp(new Date())
-                .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                .build();
-        return new ResponseEntity<>(response, response.getHttpStatus());
-    }
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ExceptionResDTO> globalExceptionHandler(Exception exception, WebRequest request){
+//        ExceptionResDTO response= ExceptionResDTO.builder()
+//                .message(exception.getMessage())
+//                .path(request.getDescription(false))
+//                .timestamp(new Date())
+//                .httpStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+//                .build();
+//        return new ResponseEntity<>(response, response.getHttpStatus());
+//    }
 }

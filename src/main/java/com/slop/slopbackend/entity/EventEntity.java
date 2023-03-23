@@ -8,10 +8,7 @@ import org.springframework.http.HttpStatus;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Getter
@@ -49,33 +46,12 @@ public class EventEntity {
     @Column(nullable = false)
     private String briefDescription;
 
-//    @ManyToMany
-//    @JoinTable(
-//            name = "event_registrations",
-//            joinColumns =  @JoinColumn(name="event_id"),
-//            inverseJoinColumns = @JoinColumn(name="user_id")
-//    )
-//    @ToString.Exclude
-//    private Set<UserEntity> registeredUsers=new HashSet<>();
-//
-//    @ManyToMany
-//    @JoinTable(
-//            name = "event_creators",
-//            joinColumns =  @JoinColumn(name="event_id"),
-//            inverseJoinColumns = @JoinColumn(name = "user_id")
-//    )
-//    @ToString.Exclude
-//    private Set<UserEntity> eventCreators=new HashSet<>();
+    @OneToMany(mappedBy = "event",cascade = CascadeType.ALL)
+    List<UserEventEntity> userEventInteractions;
 
-//    public void addCreator(UserEntity userEntity){
-//        if(!eventCreators.add(userEntity))
-//            throw new ApiRuntimeException("User is already in the creators list!", HttpStatus.ALREADY_REPORTED);
-//    }
-//
-//    public void removeCreator(UserEntity userEntity){
-//        if(!eventCreators.remove(userEntity))
-//            throw new ApiRuntimeException("User does not exist in the creators list!",HttpStatus.BAD_REQUEST);
-//    }
+    @OneToMany(mappedBy = "event",cascade = CascadeType.ALL)
+    List<EventCreatorEntity> eventCreators;
+
     public void updateEventEntity(EventEntity eventEntity){
         if(eventEntity.getName()!=null)
             name=eventEntity.getName();
