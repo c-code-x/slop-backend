@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -27,7 +28,7 @@ public class ApiExceptionHandler {
         return new ResponseEntity<>(response, response.getHttpStatus());
     }
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<MethodArgumentNotValidExceptionResDTO> MethodArgumentNotValidExceptionHandler(MethodArgumentNotValidException exception, WebRequest request){
+    public ResponseEntity<MethodArgumentNotValidExceptionResDTO> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException exception, WebRequest request){
         Map<String,Object> errors=new HashMap<>();
         exception.getAllErrors().forEach((error)->{
             System.out.println(error);
@@ -41,6 +42,16 @@ public class ApiExceptionHandler {
                 .httpStatus(HttpStatus.BAD_REQUEST)
                 .build();
         return new ResponseEntity<>(response,response.getHttpStatus());
+    }
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ExceptionResDTO> missingRequestParamExceptionHandler(Exception exception, WebRequest request){
+        ExceptionResDTO response= ExceptionResDTO.builder()
+                .message(exception.getMessage())
+                .path(request.getDescription(false))
+                .timestamp(new Date())
+                .httpStatus(HttpStatus.BAD_REQUEST)
+                .build();
+        return new ResponseEntity<>(response, response.getHttpStatus());
     }
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResDTO> globalExceptionHandler(Exception exception, WebRequest request){

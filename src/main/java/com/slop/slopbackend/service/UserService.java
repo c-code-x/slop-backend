@@ -1,15 +1,13 @@
 package com.slop.slopbackend.service;
 
 
-import com.slop.slopbackend.utility.FilePath;
-import org.springframework.util.StringUtils;
 import com.slop.slopbackend.dto.request.user.UpdateEmailIdReqDTO;
-import com.slop.slopbackend.dto.request.user.UpdatePasswordReqDTO;
 import com.slop.slopbackend.dto.request.user.UpdateUserReqDTO;
 import com.slop.slopbackend.entity.UserEntity;
 import com.slop.slopbackend.exception.ApiRuntimeException;
 import com.slop.slopbackend.repository.UserRepository;
 import com.slop.slopbackend.utility.FileUploadUtil;
+import com.slop.slopbackend.utility.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,10 +25,12 @@ import java.util.UUID;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ImageService imageService;
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ImageService imageService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.imageService = imageService;
     }
 
     public UserEntity getUserById(UUID id) {
@@ -91,7 +90,10 @@ public class UserService {
         userEntity.setPassword(passwordEncoder.encode(password));
         return userRepository.save(userEntity);
     }
-
+    public UserEntity promoteUserToClub(UserEntity userEntity) {
+        userEntity.setUserRole(UserRole.CLUB);
+        return userRepository.save(userEntity);
+    }
     public byte[] getUserProfilePicture(UUID id) throws IOException {
         UserEntity userEntity=getUserById(id);
         if(userEntity.getProfilePicture()==null)
@@ -104,9 +106,7 @@ public class UserService {
 
     public UserEntity updateUserProfilePictureById(UUID id, MultipartFile file) throws IOException{
         UserEntity userEntity=getUserById(id);
-        String fileExtension="."+StringUtils.getFilenameExtension(file.getOriginalFilename());
-        String fileName= StringUtils.cleanPath(UUID.randomUUID().toString())+fileExtension;
-        FileUploadUtil.saveFile(FilePath.IMAGE_FOLDER_PATH,fileName,file);
+        String fileName=imageService.saveImage(file);
         userEntity.setProfilePicture(fileName);
         return userRepository.save(userEntity);
     }

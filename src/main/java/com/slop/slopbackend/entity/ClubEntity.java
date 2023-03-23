@@ -23,7 +23,7 @@ public class ClubEntity {
             strategy = "org.hibernate.id.UUIDGenerator"
     )
     @Column(name = "id", updatable = false, nullable = false)
-    private UUID id ;
+    private UUID id;
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true,nullable = false)
