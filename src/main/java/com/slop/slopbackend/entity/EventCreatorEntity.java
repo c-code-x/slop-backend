@@ -31,6 +31,6 @@ public class EventCreatorEntity {
 
     @ManyToOne
     @JoinColumn(nullable = false)
-    private UserEntity user;
+    private ClubEntity creator;
 
 }

@@ -1,6 +1,8 @@
 package com.slop.slopbackend.utility;
 
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.slop.slopbackend.dto.response.event.EventCompleteResDTO;
 import com.slop.slopbackend.dto.response.event.EventResDTO;
 import com.slop.slopbackend.dto.response.user.UserResDTO;
@@ -34,6 +36,20 @@ public class ModelMapperUtil {
 
     public static <T> T toObject(Object object, Class<T> className) {
         return modelMapper.map(object, className);
+    }
+    public static <T> T json2Java(String jsonString, Class<T> classType){
+
+        T t = null;
+
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+            t=mapper.readValue(jsonString, classType);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return t;
     }
 }
 

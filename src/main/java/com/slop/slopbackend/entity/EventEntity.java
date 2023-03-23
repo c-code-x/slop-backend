@@ -35,6 +35,9 @@ public class EventEntity {
     @Column(nullable = false,unique = true)
     private String slug;
 
+    private String poster;
+    @Column(nullable = false,updatable = false)
+    private Timestamp createdAt;
     private Timestamp startTime;
 
     private Timestamp endTime;
@@ -86,6 +89,10 @@ public class EventEntity {
             descriptionMd=eventEntity.getDescriptionMd();
         if(eventEntity.getBriefDescription()!=null)
             briefDescription=eventEntity.getBriefDescription();
+    }
+    @PrePersist
+    private void prePersist(){
+        createdAt=new Timestamp(System.currentTimeMillis());
     }
     @Override
     public boolean equals(Object object) {
