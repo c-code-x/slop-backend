@@ -9,6 +9,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -61,6 +62,8 @@ public class UserEntity {
     @Column(nullable = false,updatable = false)
     private String secretKey;
 
+    @OneToMany(mappedBy = "user")
+    private List<UserEventEntity> userEventInteraction;
     @PreUpdate
     @PrePersist
     public void preUpdate() {

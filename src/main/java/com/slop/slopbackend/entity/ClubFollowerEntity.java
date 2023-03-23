@@ -14,7 +14,7 @@ import java.util.UUID;
 @Setter
 @ToString
 @RequiredArgsConstructor
-@Table(name = "club_followers")
+@Table(name = "club_followers",uniqueConstraints = {@UniqueConstraint(columnNames = {"club_id", "user_id"})})
 public class ClubFollowerEntity {
     @Id
     @GeneratedValue(generator = "UUID")

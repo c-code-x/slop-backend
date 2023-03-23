@@ -3,6 +3,7 @@ RUN mkdir -p /workspace
 WORKDIR /workspace
 COPY pom.xml /workspace
 COPY src /workspace/src
+COPY images /workspace/images
 RUN mvn -f pom.xml clean package
 
 FROM openjdk:18-alpine

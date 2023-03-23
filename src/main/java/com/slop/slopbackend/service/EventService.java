@@ -67,8 +67,8 @@ public class EventService {
     public void userEventInteraction(UserEntity userEntity, EventEntity eventEntity, UserEventAction userEventAction, boolean effect) {
         if(effect){
             UserEventEntity userEventEntity=UserEventEntity.builder()
-                            .eventEntity(eventEntity)
-                            .userEntity(userEntity)
+                            .event(eventEntity)
+                            .user(userEntity)
                             .action(userEventAction)
                             .build();
             try {
@@ -78,8 +78,8 @@ public class EventService {
             }
             return;
         }
-        if(!userEventRepository.existsByUserEntityAndEventEntityAndAction(userEntity.getId(),eventEntity.getId(),userEventAction.toString()))
+        if(!userEventRepository.existsByUserAndEventAndAction(userEntity,eventEntity,userEventAction))
             throw new ApiRuntimeException("User has not "+ userEventAction +" this event!",HttpStatus.BAD_REQUEST);
-        userEventRepository.deleteByUserEntityAndEventEntityAndAction(userEntity.getId(),eventEntity.getId(),userEventAction.toString());
+        userEventRepository.deleteByUserAndEventAndAction(userEntity,eventEntity,userEventAction);
     }
 }

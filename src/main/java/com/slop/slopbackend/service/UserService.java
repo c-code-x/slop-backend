@@ -3,10 +3,16 @@ package com.slop.slopbackend.service;
 
 import com.slop.slopbackend.dto.request.user.UpdateEmailIdReqDTO;
 import com.slop.slopbackend.dto.request.user.UpdateUserReqDTO;
-import com.slop.slopbackend.entity.UserEntity;
+import com.slop.slopbackend.dto.response.event.EventResDTO;
+import com.slop.slopbackend.dto.response.user.UserFeedResDTO;
+import com.slop.slopbackend.entity.*;
 import com.slop.slopbackend.exception.ApiRuntimeException;
+import com.slop.slopbackend.repository.ClubFollowerRepository;
+import com.slop.slopbackend.repository.UserEventRepository;
 import com.slop.slopbackend.repository.UserRepository;
 import com.slop.slopbackend.utility.FileUploadUtil;
+import com.slop.slopbackend.utility.ModelMapperUtil;
+import com.slop.slopbackend.utility.UserEventAction;
 import com.slop.slopbackend.utility.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.transaction.Transactional;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,11 +33,15 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ImageService imageService;
+    private final ClubFollowerRepository clubFollowerRepository;
+    private final UserEventRepository userEventRepository;
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ImageService imageService) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ImageService imageService, ClubFollowerRepository clubFollowerRepository, UserEventRepository userEventRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.imageService = imageService;
+        this.clubFollowerRepository = clubFollowerRepository;
+        this.userEventRepository = userEventRepository;
     }
 
     public UserEntity getUserById(UUID id) {
@@ -109,5 +120,42 @@ public class UserService {
         String fileName=imageService.saveImage(file);
         userEntity.setProfilePicture(fileName);
         return userRepository.save(userEntity);
+    }
+
+    public void followClub(UserEntity userEntity, ClubEntity clubEntity) {
+        if(clubFollowerRepository.existsByClubAndUser(clubEntity,userEntity))
+            throw new ApiRuntimeException("User is already following the club",HttpStatus.ALREADY_REPORTED);
+        ClubFollowerEntity clubFollowerEntity=new ClubFollowerEntity();
+        clubFollowerEntity.setClub(clubEntity);
+        clubFollowerEntity.setUser(userEntity);
+        clubFollowerRepository.save(clubFollowerEntity);
+    }
+
+    public void unfollowClub(UserEntity userEntity, ClubEntity clubEntity) {
+        Optional<ClubFollowerEntity> optionalClubFollowerEntity=clubFollowerRepository.findByClubAndUser(clubEntity,userEntity);
+        if(optionalClubFollowerEntity.isEmpty())
+            throw new ApiRuntimeException("User is not following the club",HttpStatus.NOT_FOUND);
+        clubFollowerRepository.delete(optionalClubFollowerEntity.get());
+    }
+
+    public UserFeedResDTO getUserFeed(UserEntity userEntity) {
+        List<EventCreatorEntity> eventCreatorEntities=clubFollowerRepository.findAllEventOfClubByUser(userEntity);
+        List<EventEntity> eventEntities=eventCreatorEntities.stream().map(EventCreatorEntity::getEvent).toList();
+        List<EventResDTO> eventResDTOS=eventEntities.stream().map((eventEntity)->{
+            EventResDTO eventResDTO= ModelMapperUtil.toObject(eventEntity,EventResDTO.class);
+            long numberOfLikes=userEventRepository.countByEventAndAction(eventEntity, UserEventAction.LIKED);
+            long numberOfShares=userEventRepository.countByEventAndAction(eventEntity, UserEventAction.SHARED);
+            long numberOfRegistrations=userEventRepository.countByEventAndAction(eventEntity, UserEventAction.REGISTERED);
+            long numberOfAttendees=userEventRepository.countByEventAndAction(eventEntity, UserEventAction.ATTENDED);
+            eventResDTO.setNumberOfLikes(numberOfLikes);
+            eventResDTO.setNumberOfShares(numberOfShares);
+            eventResDTO.setNumberOfRegistrations(numberOfRegistrations);
+            eventResDTO.setNumberOfAttendees(numberOfAttendees);
+            eventResDTO.setLiked(userEventRepository.existsByUserAndEventAndAction(userEntity,eventEntity,UserEventAction.LIKED));
+            return eventResDTO;
+        }).toList();
+        return UserFeedResDTO.builder()
+                .events(eventResDTOS)
+                .build();
     }
 }
