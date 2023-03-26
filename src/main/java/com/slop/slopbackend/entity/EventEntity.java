@@ -49,8 +49,9 @@ public class EventEntity {
     @OneToMany(mappedBy = "event",cascade = CascadeType.ALL)
     List<UserEventEntity> userEventInteractions;
 
-    @OneToMany(mappedBy = "event",cascade = CascadeType.ALL)
-    List<EventCreatorEntity> eventCreators;
+    @ManyToOne
+    @JoinColumn(name = "club_id",referencedColumnName = "id",nullable = false)
+    ClubEntity club;
 
     public void updateEventEntity(EventEntity eventEntity){
         if(eventEntity.getName()!=null)

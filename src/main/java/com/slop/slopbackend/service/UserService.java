@@ -8,6 +8,7 @@ import com.slop.slopbackend.dto.response.user.UserFeedResDTO;
 import com.slop.slopbackend.entity.*;
 import com.slop.slopbackend.exception.ApiRuntimeException;
 import com.slop.slopbackend.repository.ClubFollowerRepository;
+import com.slop.slopbackend.repository.EventRepository;
 import com.slop.slopbackend.repository.UserEventRepository;
 import com.slop.slopbackend.repository.UserRepository;
 import com.slop.slopbackend.utility.FileUploadUtil;
@@ -35,13 +36,17 @@ public class UserService {
     private final ImageService imageService;
     private final ClubFollowerRepository clubFollowerRepository;
     private final UserEventRepository userEventRepository;
+    private final EventRepository eventRepository;
+
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ImageService imageService, ClubFollowerRepository clubFollowerRepository, UserEventRepository userEventRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ImageService imageService, ClubFollowerRepository clubFollowerRepository, UserEventRepository userEventRepository,
+                       EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.imageService = imageService;
         this.clubFollowerRepository = clubFollowerRepository;
         this.userEventRepository = userEventRepository;
+        this.eventRepository = eventRepository;
     }
 
     public UserEntity getUserById(UUID id) {
@@ -139,8 +144,7 @@ public class UserService {
     }
 
     public UserFeedResDTO getUserFeed(UserEntity userEntity) {
-        List<EventCreatorEntity> eventCreatorEntities=clubFollowerRepository.findAllEventOfClubByUser(userEntity);
-        List<EventEntity> eventEntities=eventCreatorEntities.stream().map(EventCreatorEntity::getEvent).toList();
+        List<EventEntity> eventEntities=eventRepository.findAllEventsByClubOwnerId(userEntity.getId());
         List<EventResDTO> eventResDTOS=eventEntities.stream().map((eventEntity)->{
             EventResDTO eventResDTO= ModelMapperUtil.toObject(eventEntity,EventResDTO.class);
             long numberOfLikes=userEventRepository.countByEventAndAction(eventEntity, UserEventAction.LIKED);
@@ -152,9 +156,9 @@ public class UserService {
             eventResDTO.setNumberOfRegistrations(numberOfRegistrations);
             eventResDTO.setNumberOfAttendees(numberOfAttendees);
             eventResDTO.setLiked(userEventRepository.existsByUserAndEventAndAction(userEntity,eventEntity,UserEventAction.LIKED));
-            eventResDTO.setClubName(eventEntity.getEventCreators().get(0).getCreator().getClubName());
-            eventResDTO.setClubProfilePicture(eventEntity.getEventCreators().get(0).getCreator().getOwner().getProfilePicture());
-            eventResDTO.setClubSlug(eventEntity.getEventCreators().get(0).getCreator().getClubSlug());
+            eventResDTO.setClubName(eventEntity.getClub().getClubName());
+            eventResDTO.setClubProfilePicture(eventEntity.getClub().getOwner().getProfilePicture());
+            eventResDTO.setClubSlug(eventEntity.getClub().getClubSlug());
             return eventResDTO;
         }).toList();
         return UserFeedResDTO.builder()

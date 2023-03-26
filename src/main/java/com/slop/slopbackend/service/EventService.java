@@ -2,7 +2,7 @@ package com.slop.slopbackend.service;
 
 import com.slop.slopbackend.entity.*;
 import com.slop.slopbackend.exception.ApiRuntimeException;
-import com.slop.slopbackend.repository.EventCreatorRepository;
+import com.slop.slopbackend.repository.ClubRepository;
 import com.slop.slopbackend.repository.EventRepository;
 import com.slop.slopbackend.repository.UserEventRepository;
 import com.slop.slopbackend.utility.UserEventAction;
@@ -21,25 +21,24 @@ import java.util.UUID;
 public class EventService {
 
     final private EventRepository eventRepository;
-    final private EventCreatorRepository eventCreatorRepository;
     final private UserEventRepository userEventRepository;
     final private ImageService imageService;
+    private final ClubRepository clubRepository;
+
     @Autowired
-    public EventService(EventRepository eventRepository, EventCreatorRepository eventCreatorRepository, UserEventRepository userEventRepository, ImageService imageService) {
+    public EventService(EventRepository eventRepository,  UserEventRepository userEventRepository, ImageService imageService,
+                        ClubRepository clubRepository) {
         this.eventRepository = eventRepository;
-        this.eventCreatorRepository = eventCreatorRepository;
         this.userEventRepository = userEventRepository;
         this.imageService = imageService;
+        this.clubRepository = clubRepository;
     }
 
     public EventEntity saveEvent(EventEntity eventEntity, ClubEntity clubEntity) {
         if(eventRepository.existsBySlug(eventEntity.getSlug()))
             throw new ApiRuntimeException("Slug is already taken!", HttpStatus.ALREADY_REPORTED);
-
-        EventCreatorEntity eventCreatorEntity=new EventCreatorEntity();
-        eventCreatorEntity.setCreator(clubEntity);
-        eventCreatorEntity.setEvent(eventRepository.save(eventEntity));
-        return eventCreatorRepository.save(eventCreatorEntity).getEvent();
+        eventEntity.setClub(clubEntity);
+        return eventRepository.save(eventEntity);
     }
 
     public EventEntity getEventBySlug(String eventSlug) {
@@ -60,8 +59,8 @@ public class EventService {
         eventRepository.delete(eventEntity);
     }
 
-    public List<EventEntity> findAllClubEventsByUserId(UUID id) {
-        return eventCreatorRepository.findAllClubEventsByUserId(id);
+    public List<EventEntity> findAllClubEventsByOwnerId(UUID id) {
+        return eventRepository.findAllEventsByClubOwnerId(id);
     }
 
     public void userEventInteraction(UserEntity userEntity, EventEntity eventEntity, UserEventAction userEventAction, boolean effect) {

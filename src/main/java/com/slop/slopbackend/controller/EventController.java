@@ -5,11 +5,9 @@ import com.slop.slopbackend.dto.request.event.EventUpdateReqDTO;
 import com.slop.slopbackend.dto.response.event.EventCompleteResDTO;
 import com.slop.slopbackend.dto.response.event.EventResDTO;
 import com.slop.slopbackend.entity.ClubEntity;
-import com.slop.slopbackend.entity.EventCreatorEntity;
 import com.slop.slopbackend.entity.EventEntity;
 import com.slop.slopbackend.entity.UserEntity;
 import com.slop.slopbackend.exception.ApiRuntimeException;
-import com.slop.slopbackend.repository.EventCreatorRepository;
 import com.slop.slopbackend.service.ClubService;
 import com.slop.slopbackend.service.EventService;
 import com.slop.slopbackend.service.ImageService;
@@ -43,8 +41,7 @@ public class EventController {
     private final ImageService imageService;
     private final ClubService clubService;
     @Autowired
-    public EventController(EventService eventService, UserService userService,
-                           EventCreatorRepository eventCreatorRepository, ImageService imageService, ClubService clubService) {
+    public EventController(EventService eventService, UserService userService, ImageService imageService, ClubService clubService) {
         this.eventService = eventService;
         this.userService = userService;
         this.imageService = imageService;
@@ -73,7 +70,7 @@ public class EventController {
     @GetMapping
     public List<EventCompleteResDTO> getClubEvents(Authentication authentication){
         UserEntity userEntity=userService.getUserByEmailId(authentication.getName());
-        List<EventEntity> eventEntities=eventService.findAllClubEventsByUserId(userEntity.getId());
+        List<EventEntity> eventEntities=eventService.findAllClubEventsByOwnerId(userEntity.getId());
         return eventEntities.stream().map(ModelMapperUtil::toEventCompleteResDTO).toList();
     }
     @GetMapping("{eventSlug}")

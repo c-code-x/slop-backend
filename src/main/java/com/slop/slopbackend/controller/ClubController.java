@@ -51,7 +51,7 @@ public class ClubController {
     public AllClubEventsResDTO getClubAllEvents(@PathVariable String slug) {
         ClubEntity clubEntity = clubService.getClubBySlug(slug);
         return AllClubEventsResDTO.builder()
-                .events(clubEntity.getClubEvents().stream().map(eventEntity -> ModelMapperUtil.toObject(eventEntity, EventResDTO.class)).toList())
+                .events(clubEntity.getEvents().stream().map(eventEntity -> ModelMapperUtil.toObject(eventEntity, EventResDTO.class)).toList())
                 .build();
     }
 }
