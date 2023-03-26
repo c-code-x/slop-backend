@@ -26,4 +26,7 @@ public class EventResDTO {
     private long numberOfAttendees;
     private boolean isLiked;
     private boolean isRegistered;
+    private String clubName;
+    private String clubSlug;
+    private String clubProfilePicture;
 }

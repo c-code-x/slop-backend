@@ -152,6 +152,9 @@ public class UserService {
             eventResDTO.setNumberOfRegistrations(numberOfRegistrations);
             eventResDTO.setNumberOfAttendees(numberOfAttendees);
             eventResDTO.setLiked(userEventRepository.existsByUserAndEventAndAction(userEntity,eventEntity,UserEventAction.LIKED));
+            eventResDTO.setClubName(eventEntity.getEventCreators().get(0).getCreator().getClubName());
+            eventResDTO.setClubProfilePicture(eventEntity.getEventCreators().get(0).getCreator().getOwner().getProfilePicture());
+            eventResDTO.setClubSlug(eventEntity.getEventCreators().get(0).getCreator().getClubSlug());
             return eventResDTO;
         }).toList();
         return UserFeedResDTO.builder()
