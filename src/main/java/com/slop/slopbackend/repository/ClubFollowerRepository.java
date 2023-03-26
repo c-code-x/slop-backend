@@ -12,6 +12,6 @@ public interface ClubFollowerRepository extends JpaRepository<ClubFollowerEntity
     boolean existsByClubAndUser(ClubEntity clubEntity, UserEntity userEntity);
     Optional<ClubFollowerEntity> findByClubAndUser(ClubEntity club, UserEntity user);
 
-    @Query("SELECT c.club.clubEvents FROM ClubFollowerEntity c WHERE c.user = ?1")
-    List<EventCreatorEntity> findAllEventOfClubByUser(UserEntity userEntity);
+//    @Query("SELECT c.club.clubEvents FROM ClubFollowerEntity c WHERE c.user = ?1")
+//    List<EventCreatorEntity> findAllEventOfClubByUser(UserEntity userEntity);
 }

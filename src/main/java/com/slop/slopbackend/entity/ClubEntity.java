@@ -42,6 +42,11 @@ public class ClubEntity {
     @OneToMany(mappedBy = "club")
     private List<ClubFollowerEntity> clubFollowers;
 
-    @OneToMany(mappedBy = "creator")
-    private List<EventCreatorEntity> clubEvents;
+    @OneToMany
+    @JoinColumn
+    private List<EventEntity> events;
+
+    public void addEvent(EventEntity eventEntity) {
+        events.add(eventEntity);
+    }
 }
