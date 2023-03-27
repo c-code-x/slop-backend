@@ -80,6 +80,8 @@ public class UserService {
         UserEntity userEntity=optionalUserEntity.get();
         userEntity.setFullName(updateUserReqDTO.getFullName());
         userEntity.setBio(updateUserReqDTO.getBio());
+        userEntity.setUserSpecialization(updateUserReqDTO.getUserSpecialization());
+        userEntity.setUserSchool(updateUserReqDTO.getUserSchool());
 
         return userRepository.save(userEntity);
     }

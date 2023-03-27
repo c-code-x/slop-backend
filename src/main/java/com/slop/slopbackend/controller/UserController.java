@@ -23,10 +23,11 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.Valid;
+import javax.validation.*;
 import javax.validation.constraints.NotEmpty;
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -66,9 +67,18 @@ public class UserController {
     }
 
     @PatchMapping("{id}")
-    public Object updateUser(@RequestBody @Valid UpdateUserReqDTO updateUserReqDTO, @PathVariable UUID id){
-        UserEntity userEntity=userService.updateUserById(updateUserReqDTO,id);
-        return ModelMapperUtil.toUserResDTO(userEntity);
+    public UserResDTO updateUser(@RequestParam String body, @PathVariable UUID id,Authentication authentication,@RequestParam(required = false) MultipartFile profilePicture) throws IOException {
+        UserEntity userEntity=userService.getUserByEmailId(authentication.getName());
+        if(!userEntity.getId().equals(id))
+            throw new ApiRuntimeException("Unauthorized",HttpStatus.UNAUTHORIZED);
+        if(profilePicture!=null)
+            userService.updateUserProfilePictureById(id,profilePicture);
+        UpdateUserReqDTO updateUserReqDTO=ModelMapperUtil.json2Java(body,UpdateUserReqDTO.class);
+        Validator validator= Validation.buildDefaultValidatorFactory().getValidator();
+        Set<ConstraintViolation<UpdateUserReqDTO>> violations=validator.validate(updateUserReqDTO);
+        if(!violations.isEmpty())
+            throw new ConstraintViolationException(violations);
+        return ModelMapperUtil.toUserResDTO(userService.updateUserById(updateUserReqDTO,id));
     }
 
    @PatchMapping("{id}/emailid")

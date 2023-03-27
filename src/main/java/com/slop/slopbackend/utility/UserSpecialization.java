@@ -2,6 +2,12 @@ package com.slop.slopbackend.utility;
 
 public enum UserSpecialization {
     CSE,
+    EEE,
+    ME,
     ECE,
-    EEE
+    CE,
+    BBA,
+    BBS,
+    BSC,
+    MSC
 }

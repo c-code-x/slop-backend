@@ -68,6 +68,13 @@ public class EventController {
 
 
     @GetMapping
+    public List<EventResDTO> getAllEvents(Authentication authentication){
+        UserEntity userEntity=userService.getUserByEmailId(authentication.getName());
+        List<EventEntity> eventEntities=eventService.findAllEvents();
+        return eventEntities.stream().map(eventEntity -> eventService.getEventResDTO(eventEntity,userEntity)).toList();
+    }
+
+    @GetMapping("club")
     public List<EventCompleteResDTO> getClubEvents(Authentication authentication){
         UserEntity userEntity=userService.getUserByEmailId(authentication.getName());
         List<EventEntity> eventEntities=eventService.findAllClubEventsByOwnerId(userEntity.getId());
