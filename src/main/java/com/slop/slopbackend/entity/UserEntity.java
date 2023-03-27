@@ -64,6 +64,9 @@ public class UserEntity {
 
     @OneToMany(mappedBy = "user")
     private List<UserEventEntity> userEventInteraction;
+
+    @OneToMany(mappedBy = "user",fetch = FetchType.EAGER)
+    private List<ClubFollowerEntity> clubsFollowedByUser;
     @PreUpdate
     @PrePersist
     public void preUpdate() {

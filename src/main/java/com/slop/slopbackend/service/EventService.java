@@ -1,10 +1,12 @@
 package com.slop.slopbackend.service;
 
+import com.slop.slopbackend.dto.response.event.EventResDTO;
 import com.slop.slopbackend.entity.*;
 import com.slop.slopbackend.exception.ApiRuntimeException;
 import com.slop.slopbackend.repository.ClubRepository;
 import com.slop.slopbackend.repository.EventRepository;
 import com.slop.slopbackend.repository.UserEventRepository;
+import com.slop.slopbackend.utility.ModelMapperUtil;
 import com.slop.slopbackend.utility.UserEventAction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -80,5 +82,26 @@ public class EventService {
         if(!userEventRepository.existsByUserAndEventAndAction(userEntity,eventEntity,userEventAction))
             throw new ApiRuntimeException("User has not "+ userEventAction +" this event!",HttpStatus.BAD_REQUEST);
         userEventRepository.deleteByUserAndEventAndAction(userEntity,eventEntity,userEventAction);
+    }
+
+    public EventResDTO getEventResDTO(EventEntity eventEntity, UserEntity userEntity) {
+        EventResDTO eventResDTO= ModelMapperUtil.toObject(eventEntity,EventResDTO.class);
+        long numberOfLikes= userEventRepository.countByEventAndAction(eventEntity, UserEventAction.LIKED);
+        long numberOfShares= userEventRepository.countByEventAndAction(eventEntity, UserEventAction.SHARED);
+        long numberOfRegistrations= userEventRepository.countByEventAndAction(eventEntity, UserEventAction.REGISTERED);
+        long numberOfAttendees= userEventRepository.countByEventAndAction(eventEntity, UserEventAction.ATTENDED);
+        eventResDTO.setNumberOfLikes(numberOfLikes);
+        eventResDTO.setNumberOfShares(numberOfShares);
+        eventResDTO.setNumberOfRegistrations(numberOfRegistrations);
+        eventResDTO.setNumberOfAttendees(numberOfAttendees);
+        eventResDTO.setLiked(userEventRepository.existsByUserAndEventAndAction(userEntity,eventEntity,UserEventAction.LIKED));
+        eventResDTO.setClubName(eventEntity.getClub().getClubName());
+        eventResDTO.setClubProfilePicture(eventEntity.getClub().getOwner().getProfilePicture());
+        eventResDTO.setClubSlug(eventEntity.getClub().getClubSlug());
+        return eventResDTO;
+    }
+
+    public List<EventEntity> getEventsRegisteredByUser(UUID id) {
+        return userEventRepository.findAllEventsRegisteredByUser(id);
     }
 }
