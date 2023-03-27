@@ -12,8 +12,6 @@ import com.slop.slopbackend.repository.EventRepository;
 import com.slop.slopbackend.repository.UserEventRepository;
 import com.slop.slopbackend.repository.UserRepository;
 import com.slop.slopbackend.utility.FileUploadUtil;
-import com.slop.slopbackend.utility.ModelMapperUtil;
-import com.slop.slopbackend.utility.UserEventAction;
 import com.slop.slopbackend.utility.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -37,16 +35,18 @@ public class UserService {
     private final ClubFollowerRepository clubFollowerRepository;
     private final UserEventRepository userEventRepository;
     private final EventRepository eventRepository;
+    private final EventService eventService;
 
     @Autowired
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, ImageService imageService, ClubFollowerRepository clubFollowerRepository, UserEventRepository userEventRepository,
-                       EventRepository eventRepository) {
+                       EventRepository eventRepository, EventService eventService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.imageService = imageService;
         this.clubFollowerRepository = clubFollowerRepository;
         this.userEventRepository = userEventRepository;
         this.eventRepository = eventRepository;
+        this.eventService = eventService;
     }
 
     public UserEntity getUserById(UUID id) {
@@ -145,22 +145,7 @@ public class UserService {
 
     public UserFeedResDTO getUserFeed(UserEntity userEntity) {
         List<EventEntity> eventEntities=eventRepository.findAllEventsByClubOwnerId(userEntity.getId());
-        List<EventResDTO> eventResDTOS=eventEntities.stream().map((eventEntity)->{
-            EventResDTO eventResDTO= ModelMapperUtil.toObject(eventEntity,EventResDTO.class);
-            long numberOfLikes=userEventRepository.countByEventAndAction(eventEntity, UserEventAction.LIKED);
-            long numberOfShares=userEventRepository.countByEventAndAction(eventEntity, UserEventAction.SHARED);
-            long numberOfRegistrations=userEventRepository.countByEventAndAction(eventEntity, UserEventAction.REGISTERED);
-            long numberOfAttendees=userEventRepository.countByEventAndAction(eventEntity, UserEventAction.ATTENDED);
-            eventResDTO.setNumberOfLikes(numberOfLikes);
-            eventResDTO.setNumberOfShares(numberOfShares);
-            eventResDTO.setNumberOfRegistrations(numberOfRegistrations);
-            eventResDTO.setNumberOfAttendees(numberOfAttendees);
-            eventResDTO.setLiked(userEventRepository.existsByUserAndEventAndAction(userEntity,eventEntity,UserEventAction.LIKED));
-            eventResDTO.setClubName(eventEntity.getClub().getClubName());
-            eventResDTO.setClubProfilePicture(eventEntity.getClub().getOwner().getProfilePicture());
-            eventResDTO.setClubSlug(eventEntity.getClub().getClubSlug());
-            return eventResDTO;
-        }).toList();
+        List<EventResDTO> eventResDTOS=eventEntities.stream().map((eventEntity)->eventService.getEventResDTO(eventEntity,userEntity)).toList();
         return UserFeedResDTO.builder()
                 .events(eventResDTOS)
                 .build();
