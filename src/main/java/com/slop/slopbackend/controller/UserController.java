@@ -10,6 +10,7 @@ import com.slop.slopbackend.dto.response.user.UserResDTO;
 import com.slop.slopbackend.entity.ClubEntity;
 import com.slop.slopbackend.entity.UserEntity;
 import com.slop.slopbackend.exception.ApiRuntimeException;
+import com.slop.slopbackend.repository.ClubFollowerRepository;
 import com.slop.slopbackend.service.ClubService;
 import com.slop.slopbackend.service.EventService;
 import com.slop.slopbackend.service.UserService;
@@ -36,12 +37,15 @@ public class UserController {
     private final UserService userService;
     private final ClubService clubService;
     private final EventService eventService;
+    private final ClubFollowerRepository clubFollowerRepository;
 
     @Autowired
-    public UserController(UserService userService, ClubService clubService, EventService eventService) {
+    public UserController(UserService userService, ClubService clubService, EventService eventService,
+                          ClubFollowerRepository clubFollowerRepository) {
         this.userService = userService;
         this.clubService = clubService;
         this.eventService = eventService;
+        this.clubFollowerRepository = clubFollowerRepository;
     }
 // TODO: check if user is authorized to update his document
     @GetMapping("getUser")
@@ -57,11 +61,12 @@ public class UserController {
                 .userSchool(userEntity.getUserSchool())
                 .userSpecialization(userEntity.getUserSpecialization())
                 .profilePicture(userEntity.getProfilePicture())
-                .clubsFollowedByUser(userEntity.getClubsFollowedByUser().stream().map(clubFollowerEntity ->{
-                    ClubResDTO clubResDTO=ModelMapperUtil.toObject(clubFollowerEntity.getClub(), ClubResDTO.class);
-                    clubResDTO.setProfilePicture(clubFollowerEntity.getClub().getOwner().getProfilePicture());
-                    return clubResDTO;
-                }).toList())
+//                .clubsFollowedByUser(userEntity.getClubsFollowedByUser().stream().map(clubFollowerEntity ->{
+//                    ClubResDTO clubResDTO=ModelMapperUtil.toObject(clubFollowerEntity.getClub(), ClubResDTO.class);
+//                    clubResDTO.setProfilePicture(clubFollowerEntity.getClub().getOwner().getProfilePicture());
+//                    return clubResDTO;
+//                }).toList())
+                .clubsFollowedByUser(clubFollowerRepository.findAllByUser(userEntity))
                 .eventsRegisteredByUser(eventService.getEventsRegisteredByUser(userEntity.getId()).stream().map(eventEntity -> eventService.getEventResDTO(eventEntity,userEntity)).toList())
                 .build();
     }
@@ -133,5 +138,13 @@ public class UserController {
         if(!userEntity.getId().equals(userId))
             throw new ApiRuntimeException("Unauthorized",HttpStatus.UNAUTHORIZED);
         return userService.getUserFeed(userEntity);
+    }
+    @GetMapping("{userId}/is-club-admin")
+    public boolean checkIfUserIsClubAdmin(@PathVariable UUID userId, Authentication authentication) {
+        UserEntity userEntity=userService.getUserById(userId);
+        if(!userEntity.getId().equals(userService.getUserByEmailId(authentication.getName()).getId()))
+            throw new ApiRuntimeException("You are not authorized to perform this action", HttpStatus.UNAUTHORIZED);
+
+        return clubService.checkIfUserIsClubAdmin(userEntity);
     }
 }

@@ -146,7 +146,10 @@ public class UserService {
     }
 
     public UserFeedResDTO getUserFeed(UserEntity userEntity) {
-        List<EventEntity> eventEntities=eventRepository.findAllEventsByClubOwnerId(userEntity.getId());
+        List<EventEntity> eventEntities=eventRepository.findAll().stream().filter(eventEntity -> {
+            ClubEntity clubEntity=eventEntity.getClub();
+            return clubFollowerRepository.existsByClubAndUser(clubEntity,userEntity);
+        }).toList();
         List<EventResDTO> eventResDTOS=eventEntities.stream().map((eventEntity)->eventService.getEventResDTO(eventEntity,userEntity)).toList();
         return UserFeedResDTO.builder()
                 .events(eventResDTOS)

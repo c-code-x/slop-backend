@@ -26,7 +26,9 @@ public class ClubFollowerEntity {
     private UUID id;
 
     @ManyToOne
+    @JoinColumn(name = "club_id", referencedColumnName = "id", nullable = false)
     private ClubEntity club;
     @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private UserEntity user;
 }

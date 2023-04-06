@@ -3,6 +3,7 @@ package com.slop.slopbackend.service;
 import com.slop.slopbackend.entity.ClubEntity;
 import com.slop.slopbackend.entity.UserEntity;
 import com.slop.slopbackend.exception.ApiRuntimeException;
+import com.slop.slopbackend.repository.ClubFollowerRepository;
 import com.slop.slopbackend.repository.ClubRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,10 +18,13 @@ import java.util.UUID;
 @Transactional
 public class ClubService {
     final private ClubRepository clubRepository;
+    private final ClubFollowerRepository clubFollowerRepository;
 
     @Autowired
-    public ClubService(ClubRepository clubRepository) {
+    public ClubService(ClubRepository clubRepository,
+                       ClubFollowerRepository clubFollowerRepository) {
         this.clubRepository = clubRepository;
+        this.clubFollowerRepository = clubFollowerRepository;
     }
     public boolean existsByUserId(UUID userId){
         return clubRepository.existsByOwnerId(userId);
@@ -29,6 +33,7 @@ public class ClubService {
         Optional<ClubEntity> clubEntity= clubRepository.findClubEntityByOwnerId(userId);
         if(clubEntity.isEmpty())
             throw new ApiRuntimeException("Club does not exist!", HttpStatus.NOT_FOUND);
+        clubEntity.get().getEvents().size();
         return clubEntity.get();
     }
     public ClubEntity saveClub(ClubEntity clubEntity, UserEntity userEntity){
@@ -38,14 +43,25 @@ public class ClubService {
         return clubRepository.save(clubEntity);
     }
     public List<ClubEntity> getAllClubs(){
-        return clubRepository.findAll();
+        return clubRepository.findAll().stream().peek(clubEntity -> clubEntity.getEvents().size()).toList();
     }
 
     public ClubEntity findClubById(UUID id) {
-        return clubRepository.findById(id).orElseThrow(() -> new ApiRuntimeException("Club does not exist!", HttpStatus.NOT_FOUND));
+        ClubEntity clubEntity= clubRepository.findById(id).orElseThrow(() -> new ApiRuntimeException("Club does not exist!", HttpStatus.NOT_FOUND));
+        clubEntity.getEvents().size();
+        return clubEntity;
     }
 
     public ClubEntity getClubBySlug(String slug) {
-        return clubRepository.findClubEntityByClubSlug(slug).orElseThrow(() -> new ApiRuntimeException("Club does not exist!", HttpStatus.NOT_FOUND));
+        ClubEntity clubEntity= clubRepository.findClubEntityByClubSlug(slug).orElseThrow(() -> new ApiRuntimeException("Club does not exist!", HttpStatus.NOT_FOUND));
+        clubEntity.getEvents().size();
+        return clubEntity;
+    }
+    public boolean checkIfUserFollowsClub(ClubEntity clubEntity, UserEntity userEntity){
+        return clubFollowerRepository.existsByClubAndUser(clubEntity,userEntity);
+    }
+
+    public boolean checkIfUserIsClubAdmin(UserEntity userEntity) {
+        return clubRepository.existsByOwnerId(userEntity.getId());
     }
 }
