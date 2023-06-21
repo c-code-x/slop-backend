@@ -104,4 +104,8 @@ public class EventService {
     public List<EventEntity> getEventsRegisteredByUser(UUID id) {
         return userEventRepository.findAllEventsRegisteredByUser(id);
     }
+
+    public List<EventEntity> findAllEvents() {
+            return eventRepository.findAll();
+    }
 }

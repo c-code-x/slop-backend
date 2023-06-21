@@ -1,5 +1,7 @@
 package com.slop.slopbackend.dto.request.user;
 
+import com.slop.slopbackend.utility.UserSchool;
+import com.slop.slopbackend.utility.UserSpecialization;
 import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
@@ -14,4 +16,9 @@ public class UpdateUserReqDTO {
 
     @NotNull
     private String bio;
+
+    @NotNull
+    private UserSpecialization userSpecialization;
+    @NotNull
+    private UserSchool userSchool;
 }
